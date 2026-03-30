@@ -9,9 +9,12 @@ const MIN_BRIGHTNESS: u32 = 400;
 const MAX_BRIGHTNESS: u32 = 60000;
 const BRIGHTNESS_RANGE: u32 = MAX_BRIGHTNESS - MIN_BRIGHTNESS;
 
-const SD_PRODUCT_ID: u16 = 0x1114;
 const SD_VENDOR_ID: u16 = 0x05ac;
 const SD_INTERFACE_NR: i32 = 0x7;
+const SD_PRODUCT_IDS: [u16; 2] = [
+    0x1114, // Studio Display
+    0x1116, // Studio Display XDR
+];
 
 fn get_brightness(handle: &mut hidapi::HidDevice) -> Result<u32, Box<dyn Error>> {
     let mut buf = Vec::with_capacity(7); // report id, 4 bytes brightness, 2 bytes unknown
@@ -61,7 +64,7 @@ fn studio_displays(hapi: &HidApi) -> Result<Vec<&hidapi::DeviceInfo>, Box<dyn Er
     return Ok(hapi
         .device_list()
         .filter(|x| {
-            x.product_id() == SD_PRODUCT_ID
+            SD_PRODUCT_IDS.contains(&x.product_id())
                 && x.vendor_id() == SD_VENDOR_ID
                 && x.interface_number() == SD_INTERFACE_NR
         })
@@ -158,7 +161,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             Some(("down", sub_matches)) => {
                 let step = *sub_matches.get_one::<u8>("step").expect("required");
                 let brightness = get_brightness_percent(&mut handle)?;
-                let new_brightness = std::cmp::min(100, brightness - step);
+                let new_brightness = std::cmp::max(0, brightness as i32 - step as i32) as u8;
                 set_brightness_percent(&mut handle, new_brightness)?;
             }
             _ => unreachable!(),
