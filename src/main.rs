@@ -11,9 +11,10 @@ const BRIGHTNESS_RANGE: u32 = MAX_BRIGHTNESS - MIN_BRIGHTNESS;
 
 const SD_VENDOR_ID: u16 = 0x05ac;
 const SD_INTERFACE_NR: i32 = 0x7;
-const SD_PRODUCT_IDS: [u16; 2] = [
-    0x1114, // Studio Display
-    0x1116, // Studio Display XDR
+const SD_PRODUCT_IDS: [u16; 3] = [
+    0x1114, // Studio Display (2022)
+    0x1116, // Studio Display XDR (2026)
+    0x1118, // Studio Display (2026)
 ];
 
 fn get_brightness(handle: &mut hidapi::HidDevice) -> Result<u32, Box<dyn Error>> {
